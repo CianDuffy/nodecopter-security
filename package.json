@@ -1,0 +1,27 @@
+{
+  "name": "nodecopter-server",
+  "version": "1.0.0",
+  "description": "Server program that uses NodeCopter library to control AR.Drone 2.0 UAV and uses a socket.io interface to communicate with client.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CianDuffy/nodecopter-server.git"
+  },
+  "keywords": [
+    "nodecopter-server"
+  ],
+  "author": "CianDuffy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CianDuffy/nodecopter-server/issues"
+  },
+  "homepage": "https://github.com/CianDuffy/nodecopter-server#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "nodecopter": "0.0.2",
+    "socket.io": "^1.5.1"
+  }
+}
