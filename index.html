@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CV.Drone</title>
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/yeti/bootstrap.css">
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                CV.DRONE
+            </a>
+        </div>
+    </nav>
+    <div class="container-fluid" id="canvas">
+        <div class="row" style="height: 5%"></div>
+        <div class="row" style="height: 90%">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div align="center" class="embed-responsive embed-responsive-16by9">
+                    <video autoplay loop class="embed-responsive-item">
+                        <source src="http://techslides.com/demos/sample-videos/small.mp4" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+        <div class="row" style="height: 5%"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.js"
+            integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
+            crossorigin="anonymous"></script>
+    <script>
+        $(function() {
+            var socket = io.connect();
+            socket.emit('connect-to-drone', true);
+            var ctrlPressed = false;
+
+
+            $(window).keydown(function(e) {
+                var event = e || window.event;
+                var key = event.which;
+                console.log(key);
+                switch(key) {
+                    case 17: // ctrl
+                        ctrlPressed = true;
+                        break;
+                    case 37: // left arrow
+                        e.preventDefault();
+                        socket.emit('rotate-anti-clockwise', true);
+                        break;
+                    case 38: // up arrow
+                        e.preventDefault();
+                        socket.emit('ascend', true);
+                        break;
+                    case 39: // right arrow
+                        e.preventDefault();
+                        socket.emit('rotate-clockwise', true);
+                        break;
+                    case 40: // down arrow
+                        e.preventDefault();
+                        socket.emit('descend', true);
+                        break;
+                    case 65: // a
+                        e.preventDefault();
+                        socket.emit('strafe-left', true);
+                        break;
+                    case 68: // d
+                        e.preventDefault();
+                        socket.emit('strafe-right', true);
+                        break;
+                    case 83: // s
+                        e.preventDefault();
+                        socket.emit('strafe-back', true);
+                        break;
+                    case 87: // w
+                        e.preventDefault();
+                        socket.emit('strafe-forward', true);
+                        break;
+                    case 91: // cmd
+                        ctrlPressed = true;
+                        break;
+                }
+            });
+
+            $(window).keyup(function(e) {
+                var event = e || window.event;
+                var key = event.which;
+
+                socket.emit('key-pressed', key);
+
+                switch(key) {
+                    case 17: // ctrl
+                        ctrlPressed = false;
+                        break;
+                    case 32: // space bar
+                        e.preventDefault();
+                        socket.emit('takeoff-or-land');
+                        break;
+                    case 37: // left arrow
+                        e.preventDefault();
+                        if (ctrlPressed) {
+                            socket.emit('flip-left');
+                        } else {
+                            socket.emit('rotate-anti-clockwise', false);
+                        }
+                        break;
+                    case 38: // up arrow
+                        e.preventDefault();
+                        if (ctrlPressed) {
+                            socket.emit('flip-forward');
+                        } else {
+                            socket.emit('ascend', false);
+                        }
+                        break;
+                    case 39: // right arrow
+                        e.preventDefault();
+                        if (ctrlPressed) {
+                            socket.emit('flip-right');
+                        } else {
+                            socket.emit('rotate-clockwise', false);
+                        }
+                        break;
+                    case 40: // down arrow
+                        e.preventDefault();
+                        if (ctrlPressed) {
+                            socket.emit('flip-backward');
+                        } else {
+                            socket.emit('descend', false);
+                        }
+                        break;
+                    case 65: // a
+                        e.preventDefault();
+                        socket.emit('strafe-left', false);
+                        break;
+                    case 68: // d
+                        e.preventDefault();
+                        socket.emit('strafe-right', false);
+                        break;
+                    case 83: // s
+                        e.preventDefault();
+                        socket.emit('strafe-back', false);
+                        break;
+                    case 87: // w
+                        e.preventDefault();
+                        socket.emit('strafe-forward', false);
+                        break;
+                    case 91: // cmd
+                        ctrlPressed = true;
+                        break;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

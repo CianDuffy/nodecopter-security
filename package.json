@@ -20,7 +20,9 @@
   },
   "homepage": "https://github.com/CianDuffy/nodecopter-server#readme",
   "dependencies": {
+    "dronestream": "^1.1.1",
     "express": "^4.14.0",
+    "ffmpeg": "0.0.4",
     "nodecopter": "0.0.2",
     "socket.io": "^1.5.1"
   }
