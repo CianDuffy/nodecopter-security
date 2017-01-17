@@ -52,6 +52,8 @@
                         break;
                     case 37: // left arrow
                         e.preventDefault();
+                        console.log('left arrow down');
+
                         if (shiftPressed) {
                             socket.emit('flip-left');
                         } else {

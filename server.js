@@ -44,6 +44,7 @@ io.sockets.on('connection', function(socket) {
             if (!isFlying){
                 console.log('takeoff()');
                 isFlying = true;
+                canFlip = true;
                 if (!debugMode) {
                     client.takeoff();
                 }
@@ -219,7 +220,10 @@ io.sockets.on('connection', function(socket) {
 
         socket.on('flip-left', function() {
             if (canFlip) {
-                // start canFlip cooldown timer
+                console.log('flip left');;
+                // 8 second cooldown between flips
+                canFlip = false;
+                setTimeout(function() {canFlip = true; console.log('canFlip reset');}, 8000);
                 if (!debugMode) {
                     // flip
                 }
@@ -228,7 +232,10 @@ io.sockets.on('connection', function(socket) {
 
         socket.on('flip-forward', function() {
             if (canFlip) {
-                // start canFlip cooldown timer
+                console.log('flip forward');
+                // 8 second cooldown between flips
+                canFlip = false;
+                setTimeout(function() {canFlip = true; console.log('canFlip reset');}, 8000);
                 if (!debugMode) {
                     // flip
                 }
@@ -237,7 +244,10 @@ io.sockets.on('connection', function(socket) {
 
         socket.on('flip-right', function() {
             if (canFlip) {
-                // start canFlip cooldown timer
+                console.log('flip right');
+                // 8 second cooldown between flips
+                canFlip = false;
+                setTimeout(function() {canFlip = true; console.log('canFlip reset');}, 8000);
                 if (!debugMode) {
                     // flip
                 }
@@ -246,7 +256,10 @@ io.sockets.on('connection', function(socket) {
 
         socket.on('flip-backward', function() {
             if (canFlip) {
-                // start canFlip cooldown timer
+                console.log('flip backward');
+                // 8 second cooldown between flips
+                canFlip = false;
+                setTimeout(function() {canFlip = true; console.log('canFlip reset');}, 8000);
                 if (!debugMode) {
                     // flip
                 }
