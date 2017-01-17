@@ -39,7 +39,7 @@
         $(function() {
             var socket = io.connect();
             socket.emit('connect-to-drone', true);
-            var ctrlPressed = false;
+            var shiftPressed = false;
 
 
             $(window).keydown(function(e) {
@@ -47,24 +47,40 @@
                 var key = event.which;
                 console.log(key);
                 switch(key) {
-                    case 17: // ctrl
-                        ctrlPressed = true;
+                    case 16: // shift
+                        shiftPressed = true;
                         break;
                     case 37: // left arrow
                         e.preventDefault();
-                        socket.emit('rotate-anti-clockwise', true);
+                        if (shiftPressed) {
+                            socket.emit('flip-left');
+                        } else {
+                            socket.emit('rotate-anti-clockwise', true);
+                        }
                         break;
                     case 38: // up arrow
                         e.preventDefault();
-                        socket.emit('ascend', true);
+                        if (shiftPressed) {
+                            socket.emit('flip-forward');
+                        } else {
+                            socket.emit('ascend', true);
+                        }
                         break;
                     case 39: // right arrow
                         e.preventDefault();
-                        socket.emit('rotate-clockwise', true);
+                        if (shiftPressed) {
+                            socket.emit('flip-right');
+                        } else {
+                            socket.emit('rotate-clockwise', true);
+                        }
                         break;
                     case 40: // down arrow
                         e.preventDefault();
+                    if (shiftPressed) {
+                        socket.emit('flip-backward');
+                    } else {
                         socket.emit('descend', true);
+                    }
                         break;
                     case 65: // a
                         e.preventDefault();
@@ -83,7 +99,7 @@
                         socket.emit('strafe-forward', true);
                         break;
                     case 91: // cmd
-                        ctrlPressed = true;
+                        shiftPressed = true;
                         break;
                 }
             });
@@ -92,11 +108,12 @@
                 var event = e || window.event;
                 var key = event.which;
 
-                socket.emit('key-pressed', key);
+                socket.emit('key-pressed' + key);
 
                 switch(key) {
-                    case 17: // ctrl
-                        ctrlPressed = false;
+                    case 16: // shift
+                        console.log('shift pressed');
+                        shiftPressed = false;
                         break;
                     case 32: // space bar
                         e.preventDefault();
@@ -104,35 +121,19 @@
                         break;
                     case 37: // left arrow
                         e.preventDefault();
-                        if (ctrlPressed) {
-                            socket.emit('flip-left');
-                        } else {
-                            socket.emit('rotate-anti-clockwise', false);
-                        }
+                        socket.emit('rotate-anti-clockwise', false);
                         break;
                     case 38: // up arrow
                         e.preventDefault();
-                        if (ctrlPressed) {
-                            socket.emit('flip-forward');
-                        } else {
-                            socket.emit('ascend', false);
-                        }
+                        socket.emit('ascend', false);
                         break;
                     case 39: // right arrow
                         e.preventDefault();
-                        if (ctrlPressed) {
-                            socket.emit('flip-right');
-                        } else {
-                            socket.emit('rotate-clockwise', false);
-                        }
+                        socket.emit('rotate-clockwise', false);
                         break;
                     case 40: // down arrow
                         e.preventDefault();
-                        if (ctrlPressed) {
-                            socket.emit('flip-backward');
-                        } else {
-                            socket.emit('descend', false);
-                        }
+                        socket.emit('descend', false);
                         break;
                     case 65: // a
                         e.preventDefault();
@@ -151,7 +152,7 @@
                         socket.emit('strafe-forward', false);
                         break;
                     case 91: // cmd
-                        ctrlPressed = true;
+                        shiftPressed = true;
                         break;
                 }
             });

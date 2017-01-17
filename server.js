@@ -8,7 +8,7 @@ var io = require('socket.io').listen(server);
 users = [];
 connections = [];
 
-var isFlying, strafingLeft, strafingRight, strafingForward, strafingBackward, rotatingClockwise, rotatingAntiClockwise, descending, ascending = false;
+var isFlying, strafingLeft, strafingRight, strafingForward, strafingBackward, rotatingClockwise, rotatingAntiClockwise, descending, ascending, canFlip = false;
 
 server.listen(3000);
 
@@ -16,30 +16,13 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-// io.sockets.on('connection', function(socket) {
-//     // Connect
-//     connections.push(socket);
-//     console.log('Connected: %s sockets connected', connections.length);
-//
-//     // Disconnect
-//     socket.on('disconnect', function (data) {
-//         connections.splice(connections.indexOf(socket), 1);
-//         console.log('Disconnected: %s sockets connected', connections.length);
-//     });
-//
-//     socket.on('key-pressed', function (data) {
-//     	console.log('\nKey pressed: ');
-// 		console.log(data);
-//     });
-// });
-
 io.sockets.on('connection', function(socket) {
 	// Connect
 	connections.push(socket);
 	console.log('Connected: %s sockets connected', connections.length);
 
 	// Disconnect
-	socket.on('disconnect', function(data) {
+	socket.on('disconnect', function() {
 		connections.splice(connections.indexOf(socket), 1);
 		console.log('Disconnected: %s sockets connected', connections.length);
 	});
@@ -230,6 +213,42 @@ io.sockets.on('connection', function(socket) {
                 rotatingAntiClockwise = false;
                 if (!debugMode) {
                     // stop rotating clockwise
+                }
+            }
+        });
+
+        socket.on('flip-left', function() {
+            if (canFlip) {
+                // start canFlip cooldown timer
+                if (!debugMode) {
+                    // flip
+                }
+            }
+        });
+
+        socket.on('flip-forward', function() {
+            if (canFlip) {
+                // start canFlip cooldown timer
+                if (!debugMode) {
+                    // flip
+                }
+            }
+        });
+
+        socket.on('flip-right', function() {
+            if (canFlip) {
+                // start canFlip cooldown timer
+                if (!debugMode) {
+                    // flip
+                }
+            }
+        });
+
+        socket.on('flip-backward', function() {
+            if (canFlip) {
+                // start canFlip cooldown timer
+                if (!debugMode) {
+                    // flip
                 }
             }
         });
