@@ -8,7 +8,13 @@ var io = require('socket.io').listen(server);
 users = [];
 connections = [];
 
-var isFlying, strafingLeft, strafingRight, strafingForward, strafingBackward, rotatingClockwise, rotatingAntiClockwise, descending, ascending, canFlip = false;
+// Program variables
+var isFlying, canFlip = false;
+var rollSpeed = 0.0;
+var yawSpeed = 0.0;
+var pitchSpeed = 0.0;
+var verticalSpeed = 0.0;
+var speedMultiplier = 0.1;
 
 server.listen(3000);
 
@@ -29,7 +35,7 @@ io.sockets.on('connection', function(socket) {
 
 	// Connect to AR.Drone
 	socket.on('connect-to-drone', function(debugMode) {
-		console.log(debugMode);
+		console.log('DEBUG: ' + debugMode);
 
 		console.log('Connect to Drone');
 		if (debugMode == false) {
@@ -37,20 +43,30 @@ io.sockets.on('connection', function(socket) {
 			var client  = arDrone.createClient();
 		}
 
-		// Drone Commands
+		// Socket.io methods
+
+        socket.on('hover', function() {
+           if (!debugMode) {
+               if (isFlying){
+                   client.stop();
+               }
+           }
+        });
 
 		// Takeoff / land
 		socket.on('takeoff-or-land', function() {
             if (!isFlying){
                 console.log('takeoff()');
                 isFlying = true;
-                canFlip = true;
+                canFlip = false;
                 if (!debugMode) {
                     client.takeoff();
+                    client.stop();
                 }
             } else {
                 console.log('land');
                 isFlying = false;
+                canFlip = false;
                 if (!debugMode) {
                     client.stop();
                     client.land();
@@ -58,212 +74,215 @@ io.sockets.on('connection', function(socket) {
             }
 		});
 
-		socket.on('strafe-left', function (start) {
-            if (start == true) {
-                // start moving left
-                if (!strafingLeft) {
-                    console.log('start strafing left');
-                    strafingLeft = true;
-                    if (!debugMode) {
-                        // strafe left
+		socket.on('roll', function (direction, start) {
+            if (start) {
+                if (direction == 'right') {
+                    if (rollSpeed < 1.0) {
+                        rollSpeed += 1.0;
+                        updateRollSpeed();
+                    }
+                } else {
+                    if (rollSpeed > -1.0) {
+                        rollSpeed -= 1.0;
+                        updateRollSpeed();
                     }
                 }
             } else {
-                // stop moving left
-                console.log('stop strafing left');
-                strafingLeft = false;
-                if (!debugMode) {
-                    // stop strafing left
+                if (direction == 'right') {
+                    if (rollSpeed >= 0.0) {
+                        rollSpeed -= 1.0;
+                        updateRollSpeed();
+                    }
+                } else {
+                    if (rollSpeed <= 0.0) {
+                        rollSpeed += 1.0;
+                        updateRollSpeed();
+                    }
                 }
             }
         });
 
-        socket.on('strafe-right', function (start) {
-            if (start == true) {
-                // start moving right
-                if (!strafingRight) {
-                    console.log('start strafing right');
-                    strafingRight = true;
-                    if (!debugMode) {
-                        // strafe right
+        socket.on('yaw', function (direction, start) {
+            if (start) {
+                if (direction == 'clockwise') {
+                    if (yawSpeed < 1.0) {
+                        yawSpeed += 1.0;
+                        updateYawSpeed();
+                    }
+                } else {
+                    if (yawSpeed > -1.0) {
+                        yawSpeed -= 1.0;
+                        updateYawSpeed();
                     }
                 }
             } else {
-                // stop moving right
-                console.log('stop strafing right');
-                strafingRight = false;
-                if (!debugMode) {
-                    // stop strafing right
+                if (direction == 'clockwise') {
+                    if (yawSpeed >= 0.0) {
+                        yawSpeed -= 1.0;
+                        updateYawSpeed();
+                    }
+                } else {
+                    if (yawSpeed <= 0.0) {
+                        yawSpeed += 1.0;
+                        updateYawSpeed();
+                    }
                 }
             }
         });
 
-        socket.on('strafe-forward', function (start) {
-            if (start == true) {
-                // start moving forward
-                if (!strafingForward) {
-                    console.log('start strafing forward');
-                    strafingForward = true;
-                    if (!debugMode) {
-                        // strafe forward
+        socket.on('pitch', function (direction, start) {
+            if (start) {
+                if (direction == 'forward') {
+                    if (pitchSpeed < 1.0) {
+                        pitchSpeed += 1.0;
+                        updatePitchSpeed();
+                    }
+                } else {
+                    if (pitchSpeed > -1.0) {
+                        pitchSpeed -= 1.0;
+                        updatePitchSpeed();
                     }
                 }
             } else {
-                // stop moving forward
-                console.log('stop strafing forward');
-                strafingForward = false;
-                if (!debugMode) {
-                    // stop strafing forward
+                if (direction == 'forward') {
+                    if (pitchSpeed >= 0.0) {
+                        pitchSpeed -= 1.0;
+                        updatePitchSpeed();
+                    }
+                } else {
+                    if (pitchSpeed <= 0.0) {
+                        pitchSpeed += 1.0;
+                        updatePitchSpeed();
+                    }
                 }
             }
         });
 
-        socket.on('strafe-back', function (start) {
-            if (start == true) {
-                // start moving backward
-                if (!strafingBackward) {
-                    console.log('start strafing backward');
-                    strafingBackward = true;
-                    if (!debugMode) {
-                        // strafe forward
+        socket.on('vertical', function (direction, start) {
+            if (start) {
+                if (direction == 'up') {
+                    if (verticalSpeed < 1.0) {
+                        verticalSpeed += 1.0;
+                        updateVerticalSpeed();
+                    }
+                } else {
+                    if (verticalSpeed > -1.0) {
+                        verticalSpeed -= 1.0;
+                        updateVerticalSpeed();
                     }
                 }
             } else {
-                // stop moving backward
-                console.log('stop strafing backward');
-                strafingBackward = false;
-                if (!debugMode) {
-                    // stop strafing backward
+                if (direction == 'up') {
+                    if (verticalSpeed >= 0.0) {
+                        verticalSpeed -= 1.0;
+                        updateVerticalSpeed();
+                    }
+                } else {
+                    if (verticalSpeed <= 0.0) {
+                        verticalSpeed += 1.0;
+                        updateVerticalSpeed();
+                    }
                 }
             }
         });
 
-        socket.on('ascend', function (start) {
-            if (start == true) {
-                // start rotating anti-clockwise
-                if (!ascending) {
-                    console.log('start ascending');
-                    ascending = true;
-                    if (!debugMode) {
-                        // strafe forward
-                    }
-                }
-            } else {
-                // stop rotating anti-clockwise
-                console.log('stop ascending');
-                ascending = false;
-                if (!debugMode) {
-                    // stop rotating clockwise
-                }
-            }
-        });
-
-        socket.on('descend', function (start) {
-            if (start == true) {
-                // start rotating anti-clockwise
-                if (!rotatingAntiClockwise) {
-                    console.log('start descending');
-                    descending = true;
-                    if (!debugMode) {
-                        // strafe forward
-                    }
-                }
-            } else {
-                // stop rotating anti-clockwise
-                console.log('stop descending');
-                descending = false;
-                if (!debugMode) {
-                    // stop rotating clockwise
-                }
-            }
-        });
-
-        socket.on('rotate-clockwise', function (start) {
-            if (start == true) {
-                // start rotating clockwise
-                if (!rotatingClockwise) {
-                    console.log('start rotating clockwise');
-                    rotatingClockwise = true;
-                    if (!debugMode) {
-                        // strafe forward
-                    }
-                }
-            } else {
-                // stop rotating clockwise
-                console.log('stop rotating clockwise');
-                rotatingClockwise = false;
-                if (!debugMode) {
-                    // stop rotating clockwise
-                }
-            }
-        });
-
-        socket.on('rotate-anti-clockwise', function (start) {
-            if (start == true) {
-                // start rotating anti-clockwise
-                if (!rotatingAntiClockwise) {
-                    console.log('start rotating anti-clockwise');
-                    rotatingAntiClockwise = true;
-                    if (!debugMode) {
-                        // strafe forward
-                    }
-                }
-            } else {
-                // stop rotating anti-clockwise
-                console.log('stop rotating anti-clockwise');
-                rotatingAntiClockwise = false;
-                if (!debugMode) {
-                    // stop rotating clockwise
-                }
-            }
-        });
-
-        socket.on('flip-left', function() {
+        socket.on('flip', function (direction) {
             if (canFlip) {
-                console.log('flip left');;
-                // 8 second cooldown between flips
-                canFlip = false;
-                setTimeout(function() {canFlip = true; console.log('canFlip reset');}, 8000);
-                if (!debugMode) {
-                    // flip
+                switch (direction) {
+                    case 'left':
+                        console.log('flip left');
+                        canFlip = false;
+                        setTimeout(resetCanFlip, 8000);
+                        if (!debugMode) {
+                            client.stop();
+                            client.animate('flipLeft', 1000);
+                        }
+                        break;
+                    case 'right':
+                        console.log('flip right');
+                        canFlip = false;
+                        setTimeout(resetCanFlip, 8000);
+                        if (!debugMode) {
+                            client.stop();
+                            client.animate('flipRight', 1000);
+                        }
+                        break;
+                    case 'forward':
+                        console.log('flip forward');
+                        canFlip = false;
+                        setTimeout(resetCanFlip, 8000);
+                        if (!debugMode) {
+                            client.stop();
+                            client.animate('flipAhead', 1000);
+                        }
+                        break;
+                    case 'backward':
+                        console.log('flip backward');
+                        canFlip = false;
+                        setTimeout(resetCanFlip, 8000);
+                        if (!debugMode) {
+                            client.stop();
+                            client.animate('flipBehind', 1000);
+                        }
+                        break;
+                    default:
+                        console.log("Invalid Argument passed to socket.on('flip', direction)");
                 }
             }
         });
 
-        socket.on('flip-forward', function() {
-            if (canFlip) {
-                console.log('flip forward');
-                // 8 second cooldown between flips
-                canFlip = false;
-                setTimeout(function() {canFlip = true; console.log('canFlip reset');}, 8000);
-                if (!debugMode) {
-                    // flip
-                }
-            }
-        });
+        // AR.Drone Control Methods
 
-        socket.on('flip-right', function() {
-            if (canFlip) {
-                console.log('flip right');
-                // 8 second cooldown between flips
-                canFlip = false;
-                setTimeout(function() {canFlip = true; console.log('canFlip reset');}, 8000);
-                if (!debugMode) {
-                    // flip
+        var updateRollSpeed = function () {
+            console.log('updateRollSpeed(' + rollSpeed + ')');
+            if (!debugMode) {
+                if (rollSpeed >= 0) {
+                    client.right(rollSpeed * speedMultiplier);
+                } else {
+                    client.left(speedMultiplier);
                 }
             }
-        });
+        };
 
-        socket.on('flip-backward', function() {
-            if (canFlip) {
-                console.log('flip backward');
-                // 8 second cooldown between flips
-                canFlip = false;
-                setTimeout(function() {canFlip = true; console.log('canFlip reset');}, 8000);
-                if (!debugMode) {
-                    // flip
+        var updateYawSpeed = function () {
+            console.log('updateYawSpeed(' + yawSpeed + ')');
+            if (!debugMode) {
+                if (rollSpeed >= 0) {
+                    client.clockwise(yawSpeed * speedMultiplier);
+                } else {
+                    client.counterClockwise(speedMultiplier);
                 }
             }
-        });
+        };
+
+        var updatePitchSpeed = function () {
+            console.log('updatePitchSpeed(' + pitchSpeed + ')');
+            if (!debugMode) {
+                if (pitchSpeed >= 0) {
+                    client.front(pitchSpeed * speedMultiplier);
+                } else {
+                    client.left(speedMultiplier);
+                }
+            }
+        };
+
+        var updateVerticalSpeed = function () {
+            console.log('updateVerticalSpeed(' + verticalSpeed + ')');
+            if (!debugMode) {
+                if (pitchSpeed >= 0) {
+                    client.up(verticalSpeed * speedMultiplier);
+                } else {
+                    client.down(speedMultiplier);
+                }
+            }
+        };
 	});
 });
+
+// Utility Methods
+var resetCanFlip = function () {
+    if (isFlying) {
+        canFlip = true;
+        console.log('canFlip reset');
+    }
+};

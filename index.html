@@ -52,53 +52,55 @@
                         break;
                     case 37: // left arrow
                         e.preventDefault();
-                        console.log('left arrow down');
-
                         if (shiftPressed) {
-                            socket.emit('flip-left');
+                            socket.emit('flip', 'left');
                         } else {
-                            socket.emit('rotate-anti-clockwise', true);
+                            socket.emit('yaw', 'counterClockwise', true);
                         }
                         break;
                     case 38: // up arrow
                         e.preventDefault();
                         if (shiftPressed) {
-                            socket.emit('flip-forward');
+                            socket.emit('flip','forward');
                         } else {
-                            socket.emit('ascend', true);
+                            socket.emit('vertical', 'up', true);
                         }
                         break;
                     case 39: // right arrow
                         e.preventDefault();
                         if (shiftPressed) {
-                            socket.emit('flip-right');
+                            socket.emit('flip', 'right');
                         } else {
-                            socket.emit('rotate-clockwise', true);
+                            socket.emit('yaw', 'clockwise', true);
                         }
                         break;
                     case 40: // down arrow
                         e.preventDefault();
                     if (shiftPressed) {
-                        socket.emit('flip-backward');
+                        socket.emit('flip', 'backward');
                     } else {
-                        socket.emit('descend', true);
+                        socket.emit('vertical', 'down', true);
                     }
                         break;
                     case 65: // a
                         e.preventDefault();
-                        socket.emit('strafe-left', true);
+                        socket.emit('roll', 'left', true);
                         break;
                     case 68: // d
                         e.preventDefault();
-                        socket.emit('strafe-right', true);
+                        socket.emit('roll', 'right', true);
+                        break;
+                    case 72: // h
+                        e.preventDefault();
+                        socket.emit('hover');
                         break;
                     case 83: // s
                         e.preventDefault();
-                        socket.emit('strafe-back', true);
+                        socket.emit('pitch', 'back', true);
                         break;
                     case 87: // w
                         e.preventDefault();
-                        socket.emit('strafe-forward', true);
+                        socket.emit('pitch', 'forward', true);
                         break;
                     case 91: // cmd
                         shiftPressed = true;
@@ -123,38 +125,38 @@
                         break;
                     case 37: // left arrow
                         e.preventDefault();
-                        socket.emit('rotate-anti-clockwise', false);
+                        socket.emit('yaw', 'counterClockwise', false);
                         break;
                     case 38: // up arrow
                         e.preventDefault();
-                        socket.emit('ascend', false);
+                        socket.emit('vertical', 'up', false);
                         break;
                     case 39: // right arrow
                         e.preventDefault();
-                        socket.emit('rotate-clockwise', false);
+                        socket.emit('yaw', 'clockwise', false);
                         break;
                     case 40: // down arrow
                         e.preventDefault();
-                        socket.emit('descend', false);
+                        socket.emit('vertical','down', false);
                         break;
                     case 65: // a
                         e.preventDefault();
-                        socket.emit('strafe-left', false);
+                        socket.emit('roll', 'left', false);
                         break;
                     case 68: // d
                         e.preventDefault();
-                        socket.emit('strafe-right', false);
+                        socket.emit('roll', 'right', false);
                         break;
                     case 83: // s
                         e.preventDefault();
-                        socket.emit('strafe-back', false);
+                        socket.emit('pitch', 'back', false);
                         break;
                     case 87: // w
                         e.preventDefault();
-                        socket.emit('strafe-forward', false);
+                        socket.emit('pitch', 'forward', false);
                         break;
                     case 91: // cmd
-                        shiftPressed = true;
+                        shiftPressed = false;
                         break;
                 }
             });
