@@ -5,7 +5,9 @@
     <title>CV.Drone</title>
     <meta name="viewport" content="width=device-width initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/yeti/bootstrap.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/yeti/bootstrap.css">-->
 </head>
 <body>
     <nav class="navbar navbar-default">
@@ -17,31 +19,52 @@
     </nav>
     <div class="container-fluid" id="canvas">
         <div class="row" style="height: 5%"></div>
-        <div class="row" style="height: 90%">
-            <div class="col-md-2"></div>
-            <div class="col-md-8">
+        <div class="row">
+            <!--<div class="col-md-12">-->
+                <!---->
+            <!--</div>-->
+            <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12"></div>
+            <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
                 <div align="center" class="embed-responsive embed-responsive-16by9">
                     <video autoplay loop class="embed-responsive-item">
                         <source src="http://techslides.com/demos/sample-videos/small.mp4" type="video/mp4">
                     </video>
                 </div>
             </div>
-            <div class="col-md-2"></div>
+            <div class="col-lg-4 col-md-2 col-sm-12 col-xs-12">
+                <div class="checkbox">
+                    <label>
+                        Debug Mode
+                    </label>
+                    <input type="checkbox" checked id="debugSwitch" data-toggle="toggle" data-on="Enabled" data-off="Disabled">
+                </div>
+            </div>
         </div>
         <div class="row" style="height: 5%"></div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+
     <script
             src="https://code.jquery.com/jquery-3.1.1.js"
             integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
             crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script>
-        $(function() {
+        $(document).ready(function() {
             var socket = io.connect();
-            socket.emit('connect-to-drone', true);
+            var debugMode = true;
+            socket.emit('connect-to-drone', debugMode);
+
             var shiftPressed = false;
 
+            // UI Controls
+            $('#debugSwitch').change(function() {
+                debugMode = !debugMode;
+                socket.emit('updateDebugMode', debugMode);
+            });
 
+            // Key Events
             $(window).keydown(function(e) {
                 var event = e || window.event;
                 var key = event.which;
@@ -160,7 +183,19 @@
                         break;
                 }
             });
+
+            // Server Events
+            socket.on('disableGroundControls', function () {
+                $('#debugSwitch').attr('disabled', true);
+            });
+
+            socket.on('enableGroundControls', function () {
+                $('#debugSwitch').removeAttr('disabled');
+            });
         });
+    </script>
+    <script>
+
     </script>
 </body>
 </html>

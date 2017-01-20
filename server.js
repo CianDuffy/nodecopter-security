@@ -9,7 +9,7 @@ users = [];
 connections = [];
 
 // Program variables
-var isFlying, canFlip = false;
+var connectedToDrone, isFlying, canFlip;
 var rollSpeed = 0.0;
 var yawSpeed = 0.0;
 var pitchSpeed = 0.0;
@@ -27,6 +27,10 @@ io.sockets.on('connection', function(socket) {
 	connections.push(socket);
 	console.log('Connected: %s sockets connected', connections.length);
 
+	connectedToDrone = false;
+	isFlying = false;
+	canFlip = false;
+
 	// Disconnect
 	socket.on('disconnect', function() {
 		connections.splice(connections.indexOf(socket), 1);
@@ -35,28 +39,34 @@ io.sockets.on('connection', function(socket) {
 
 	// Connect to AR.Drone
 	socket.on('connect-to-drone', function(debugMode) {
-		console.log('DEBUG: ' + debugMode);
 
-		console.log('Connect to Drone');
-		if (debugMode == false) {
-			var arDrone = require('ar-drone');
-			var client  = arDrone.createClient();
-		}
-
-		// Socket.io methods
-
-        socket.on('hover', function() {
-           if (!debugMode) {
-               if (isFlying){
-                   client.stop();
-               }
-           }
+        socket.on('updateDebugMode', function (debugMode) {
+            console.log('DEBUG: ' + debugMode);
+            console.log('CONNECTED: ' + connectedToDrone);
+            if (!debugMode) {
+                if (!connectedToDrone){
+                    console.log('Connecting to Drone');
+                    var arDrone = require('ar-drone');
+                    var client  = arDrone.createClient();
+                    connectedToDrone = true;
+                }
+            }
         });
 
-		// Takeoff / land
+		// Socket.io methods
+        socket.on('hover', function() {
+            console.log('Hover');
+            if (!debugMode) {
+                if (isFlying) {
+                    client.stop();
+                }
+            }
+        });
+
 		socket.on('takeoff-or-land', function() {
             if (!isFlying){
                 console.log('takeoff()');
+                socket.emit('disableGroundControls');
                 isFlying = true;
                 canFlip = false;
                 if (!debugMode) {
@@ -65,6 +75,7 @@ io.sockets.on('connection', function(socket) {
                 }
             } else {
                 console.log('land');
+                socket.emit('enableGroundControls');
                 isFlying = false;
                 canFlip = false;
                 if (!debugMode) {
@@ -232,7 +243,6 @@ io.sockets.on('connection', function(socket) {
         });
 
         // AR.Drone Control Methods
-
         var updateRollSpeed = function () {
             console.log('updateRollSpeed(' + rollSpeed + ')');
             if (!debugMode) {
