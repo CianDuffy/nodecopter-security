@@ -17,11 +17,14 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.use('/js', express.static(__dirname + '/resources/js/'));
-app.use('/socket-io', express.static(__dirname + 'node-modules/socket.io'))
+// node_modules routes
+app.use('/socket-io', express.static(__dirname + '/node-modules/socket.io'))
 app.use('/drone-video', express.static(__dirname + '/node_modules/dronestream/dist/'));
-app.use('/bootstrap', express.static(__dirname + '/resources/bootstrap-3.3.7-dist'));
-app.use('/bootstrap-toggle', express.static(__dirname + '/resources/bootstrap-toggle-master'));
+
+// bower_components routes
+app.use('/jquery', express.static(__dirname + '/bower_components/jquery/dist/'));
+app.use('/bootstrap', express.static(__dirname + '/bower_components/bootstrap/dist/'));
+app.use('/bootstrap-toggle', express.static(__dirname + '/bower_components/bootstrap-toggle/'));
 
 io.sockets.on('connection', function(socket) {
 
