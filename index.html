@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CV.Drone</title>
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/bootstrap-toggle/css/bootstrap-toggle.css">
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/yeti/bootstrap.css">-->
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <a class="navbar-brand">
+                CV.DRONE
+            </a>
+        </div>
+    </nav>
+    <div class="container-fluid" id="canvas">
+        <div class="row" style="height: 5%"></div>
+        <div class="row">
+            <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12"></div>
+            <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
+                <div id="dronestream" align="center" class="embed-responsive embed-responsive-16by9"></div>
+            </div>
+            <div class="col-lg-4 col-md-2 col-sm-12 col-xs-12">
+                <div class="checkbox">
+                    <label>
+                        Debug Mode
+                    </label>
+                    <input type="checkbox" checked id="debugSwitch" data-toggle="toggle" data-on="Enabled" data-off="Disabled">
+                </div>
+            </div>
+        </div>
+        <div class="row" style="height: 5%"></div>
+    </div>
+
+    <!--jQuery and Socket.io imports-->
+    <script type="text/javascript" src="/jquery/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+    <!--Keyboard Events-->
+    <script>
+        $(document).ready(function() {
+            var socket = io.connect();
+            var debugMode = true;
+            socket.emit('connect-to-drone', debugMode);
+
+            var shiftPressed = false;
+
+            // UI Controls
+            $('#debugSwitch').change(function() {
+                debugMode = !debugMode;
+                socket.emit('updateDebugMode', debugMode);
+            });
+
+            // Key Events
+            $(window).keydown(function(e) {
+                var event = e || window.event;
+                var key = event.which;
+                console.log(key);
+                switch(key) {
+                    case 16: // shift
+                        shiftPressed = true;
+                        break;
+                    case 37: // left arrow
+                        e.preventDefault();
+                        if (shiftPressed) {
+                            socket.emit('flip', 'left');
+                        } else {
+                            socket.emit('yaw', 'counterClockwise', true);
+                        }
+                        break;
+                    case 38: // up arrow
+                        e.preventDefault();
+                        if (shiftPressed) {
+                            socket.emit('flip','forward');
+                        } else {
+                            socket.emit('vertical', 'up', true);
+                        }
+                        break;
+                    case 39: // right arrow
+                        e.preventDefault();
+                        if (shiftPressed) {
+                            socket.emit('flip', 'right');
+                        } else {
+                            socket.emit('yaw', 'clockwise', true);
+                        }
+                        break;
+                    case 40: // down arrow
+                        e.preventDefault();
+                    if (shiftPressed) {
+                        socket.emit('flip', 'backward');
+                    } else {
+                        socket.emit('vertical', 'down', true);
+                    }
+                        break;
+                    case 65: // a
+                        e.preventDefault();
+                        socket.emit('roll', 'left', true);
+                        break;
+                    case 68: // d
+                        e.preventDefault();
+                        socket.emit('roll', 'right', true);
+                        break;
+                    case 72: // h
+                        e.preventDefault();
+                        socket.emit('hover');
+                        break;
+                    case 83: // s
+                        e.preventDefault();
+                        socket.emit('pitch', 'back', true);
+                        break;
+                    case 87: // w
+                        e.preventDefault();
+                        socket.emit('pitch', 'forward', true);
+                        break;
+                    case 91: // cmd
+                        shiftPressed = true;
+                        break;
+                }
+            });
+
+            $(window).keyup(function(e) {
+                var event = e || window.event;
+                var key = event.which;
+
+                socket.emit('key-pressed' + key);
+
+                switch(key) {
+                    case 16: // shift
+                        console.log('shift pressed');
+                        shiftPressed = false;
+                        break;
+                    case 32: // space bar
+                        e.preventDefault();
+                        socket.emit('takeoff-or-land');
+                        break;
+                    case 37: // left arrow
+                        e.preventDefault();
+                        socket.emit('yaw', 'counterClockwise', false);
+                        break;
+                    case 38: // up arrow
+                        e.preventDefault();
+                        socket.emit('vertical', 'up', false);
+                        break;
+                    case 39: // right arrow
+                        e.preventDefault();
+                        socket.emit('yaw', 'clockwise', false);
+                        break;
+                    case 40: // down arrow
+                        e.preventDefault();
+                        socket.emit('vertical','down', false);
+                        break;
+                    case 65: // a
+                        e.preventDefault();
+                        socket.emit('roll', 'left', false);
+                        break;
+                    case 68: // d
+                        e.preventDefault();
+                        socket.emit('roll', 'right', false);
+                        break;
+                    case 83: // s
+                        e.preventDefault();
+                        socket.emit('pitch', 'back', false);
+                        break;
+                    case 87: // w
+                        e.preventDefault();
+                        socket.emit('pitch', 'forward', false);
+                        break;
+                    case 91: // cmd
+                        shiftPressed = false;
+                        break;
+                }
+            });
+
+            // Server Events
+            socket.on('disableGroundControls', function () {
+                $('#debugSwitch').attr('disabled', true);
+            });
+
+            socket.on('enableGroundControls', function () {
+                $('#debugSwitch').removeAttr('disabled');
+            });
+        });
+    </script>
+    <!--Bootstrap imports-->
+    <script src="/bootstrap/js/bootstrap.js"></script>
+    <script src="/bootstrap-toggle/js/bootstrap-toggle.js"></script>
+    <!--Drone Stream imports-->
+    <script type="text/javascript" src="/drone-video/nodecopter-client.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/sylvester.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/glUtils.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/util.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/avc-codec.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/avc.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/canvas.js"></script>
+    <script type="text/javascript" src="/drone-video/nodecopter-stream.js"></script>
+    <script>
+        var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
+    </script>
+</body>
+</html>
