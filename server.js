@@ -1,35 +1,47 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
+server.listen(3000);
 var io = require('socket.io').listen(server);
-// var ffmpeg = require('ffmpeg');
-// var dronestream = require("dronestream").listen(server);
 
-users = [];
+var arDrone = require('ar-drone');
+var client  = arDrone.createClient();
+var dronestream = require("dronestream").listen(server);
+
 connections = [];
 
 // Program variables
-var connectedToDrone, isFlying, canFlip;
-var rollSpeed = 0.0;
-var yawSpeed = 0.0;
-var pitchSpeed = 0.0;
-var verticalSpeed = 0.0;
-var speedMultiplier = 0.1;
-
-server.listen(3000);
+var speedMultiplier = 0.2;
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
+app.use('/js', express.static(__dirname + '/resources/js/'));
+app.use('/socket-io', express.static(__dirname + 'node-modules/socket.io'))
+app.use('/drone-video', express.static(__dirname + '/node_modules/dronestream/dist/'));
+app.use('/bootstrap', express.static(__dirname + '/resources/bootstrap-3.3.7-dist'));
+app.use('/bootstrap-toggle', express.static(__dirname + '/resources/bootstrap-toggle-master'));
+
 io.sockets.on('connection', function(socket) {
-	// Connect
+
 	connections.push(socket);
 	console.log('Connected: %s sockets connected', connections.length);
 
-	connectedToDrone = false;
-	isFlying = false;
-	canFlip = false;
+	// State Variables
+	var isFlying = false;
+	var canFlip = false;
+	var debugMode = true;
+
+	// Control variables
+	var rollRight = false;
+    var rollLeft = false;
+    var pitchForward = false;
+    var pitchBackward = false;
+    var yawClockwise = false;
+    var yawCounterClockwise = false;
+    var verticalUp = false;
+    var verticalDown = false;
 
 	// Disconnect
 	socket.on('disconnect', function() {
@@ -38,19 +50,14 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	// Connect to AR.Drone
-	socket.on('connect-to-drone', function(debugMode) {
+	socket.on('connect-to-drone', function(debug) {
+	    debugMode = debug;
+        console.log('CONNECTED');
 
-        socket.on('updateDebugMode', function (debugMode) {
-            console.log('DEBUG: ' + debugMode);
-            console.log('CONNECTED: ' + connectedToDrone);
-            if (!debugMode) {
-                if (!connectedToDrone){
-                    console.log('Connecting to Drone');
-                    var arDrone = require('ar-drone');
-                    var client  = arDrone.createClient();
-                    connectedToDrone = true;
-                }
-            }
+        socket.on('updateDebugMode', function (debug) {
+            console.log('DEBUG: ' + debug);
+            console.log('CONNECTED');
+            debugMode = debug;
         });
 
 		// Socket.io methods
@@ -88,25 +95,25 @@ io.sockets.on('connection', function(socket) {
 		socket.on('roll', function (direction, start) {
             if (start) {
                 if (direction == 'right') {
-                    if (rollSpeed < 1.0) {
-                        rollSpeed += 1.0;
+                    if (!rollRight) {
+                        rollRight = true;
                         updateRollSpeed();
                     }
                 } else {
-                    if (rollSpeed > -1.0) {
-                        rollSpeed -= 1.0;
+                    if (!rollLeft) {
+                        rollLeft = true;
                         updateRollSpeed();
                     }
                 }
             } else {
                 if (direction == 'right') {
-                    if (rollSpeed >= 0.0) {
-                        rollSpeed -= 1.0;
+                    if (rollRight) {
+                        rollRight = false;
                         updateRollSpeed();
                     }
                 } else {
-                    if (rollSpeed <= 0.0) {
-                        rollSpeed += 1.0;
+                    if (rollLeft) {
+                        rollLeft = false;
                         updateRollSpeed();
                     }
                 }
@@ -116,25 +123,25 @@ io.sockets.on('connection', function(socket) {
         socket.on('yaw', function (direction, start) {
             if (start) {
                 if (direction == 'clockwise') {
-                    if (yawSpeed < 1.0) {
-                        yawSpeed += 1.0;
+                    if (!yawClockwise) {
+                        yawClockwise = true;
                         updateYawSpeed();
                     }
                 } else {
-                    if (yawSpeed > -1.0) {
-                        yawSpeed -= 1.0;
+                    if (!yawCounterClockwise) {
+                        yawCounterClockwise = true;
                         updateYawSpeed();
                     }
                 }
             } else {
                 if (direction == 'clockwise') {
-                    if (yawSpeed >= 0.0) {
-                        yawSpeed -= 1.0;
+                    if (yawClockwise) {
+                        yawClockwise = false;
                         updateYawSpeed();
                     }
                 } else {
-                    if (yawSpeed <= 0.0) {
-                        yawSpeed += 1.0;
+                    if (yawCounterClockwise) {
+                        yawCounterClockwise = false;
                         updateYawSpeed();
                     }
                 }
@@ -144,25 +151,25 @@ io.sockets.on('connection', function(socket) {
         socket.on('pitch', function (direction, start) {
             if (start) {
                 if (direction == 'forward') {
-                    if (pitchSpeed < 1.0) {
-                        pitchSpeed += 1.0;
+                    if (!pitchForward) {
+                        pitchForward = true;
                         updatePitchSpeed();
                     }
                 } else {
-                    if (pitchSpeed > -1.0) {
-                        pitchSpeed -= 1.0;
+                    if (!pitchBackward) {
+                        pitchBackward = true;
                         updatePitchSpeed();
                     }
                 }
             } else {
                 if (direction == 'forward') {
-                    if (pitchSpeed >= 0.0) {
-                        pitchSpeed -= 1.0;
+                    if (pitchForward) {
+                        pitchForward = false;
                         updatePitchSpeed();
                     }
                 } else {
-                    if (pitchSpeed <= 0.0) {
-                        pitchSpeed += 1.0;
+                    if (pitchBackward) {
+                        pitchBackward = false;
                         updatePitchSpeed();
                     }
                 }
@@ -172,25 +179,25 @@ io.sockets.on('connection', function(socket) {
         socket.on('vertical', function (direction, start) {
             if (start) {
                 if (direction == 'up') {
-                    if (verticalSpeed < 1.0) {
-                        verticalSpeed += 1.0;
+                    if (!verticalUp) {
+                        verticalUp = true;
                         updateVerticalSpeed();
                     }
                 } else {
-                    if (verticalSpeed > -1.0) {
-                        verticalSpeed -= 1.0;
+                    if (!verticalDown) {
+                        verticalDown = true;
                         updateVerticalSpeed();
                     }
                 }
             } else {
                 if (direction == 'up') {
-                    if (verticalSpeed >= 0.0) {
-                        verticalSpeed -= 1.0;
+                    if (verticalUp) {
+                        verticalUp = false;
                         updateVerticalSpeed();
                     }
                 } else {
-                    if (verticalSpeed <= 0.0) {
-                        verticalSpeed += 1.0;
+                    if (verticalDown) {
+                        verticalDown = false;
                         updateVerticalSpeed();
                     }
                 }
@@ -244,45 +251,61 @@ io.sockets.on('connection', function(socket) {
 
         // AR.Drone Control Methods
         var updateRollSpeed = function () {
-            console.log('updateRollSpeed(' + rollSpeed + ')');
             if (!debugMode) {
-                if (rollSpeed >= 0) {
-                    client.right(rollSpeed * speedMultiplier);
-                } else {
+                if (rollRight && !rollLeft) {
+                    console.log('Roll right');
+                    client.right(speedMultiplier);
+                } else  if (rollLeft && !rollRight) {
                     client.left(speedMultiplier);
+                    console.log('Roll left');
+                } else {
+                    client.right(0);
+                    console.log('Roll stop');
                 }
             }
         };
 
         var updateYawSpeed = function () {
-            console.log('updateYawSpeed(' + yawSpeed + ')');
             if (!debugMode) {
-                if (rollSpeed >= 0) {
-                    client.clockwise(yawSpeed * speedMultiplier);
-                } else {
+                if (yawClockwise && !yawCounterClockwise) {
+                    console.log('Yaw clockwise');
+                    client.clockwise(speedMultiplier);
+                } else if (!yawClockwise && yawCounterClockwise) {
+                    console.log('Yaw counter-clockwise');
                     client.counterClockwise(speedMultiplier);
+                } else {
+                    console.log('Yaw stop');
+                    client.clockwise(0);
                 }
             }
         };
 
         var updatePitchSpeed = function () {
-            console.log('updatePitchSpeed(' + pitchSpeed + ')');
             if (!debugMode) {
-                if (pitchSpeed >= 0) {
-                    client.front(pitchSpeed * speedMultiplier);
+                if (pitchForward && !pitchBackward) {
+                    console.log('Pitch forward');
+                    client.front(speedMultiplier);
+                } else if (!pitchForward && pitchBackward) {
+                    console.log('Pitch backward');
+                    client.back(speedMultiplier);
                 } else {
-                    client.left(speedMultiplier);
+                    console.log('Pitch stop');
+                    client.front(0);
                 }
             }
         };
 
         var updateVerticalSpeed = function () {
-            console.log('updateVerticalSpeed(' + verticalSpeed + ')');
             if (!debugMode) {
-                if (pitchSpeed >= 0) {
-                    client.up(verticalSpeed * speedMultiplier);
-                } else {
+                if (verticalUp && !verticalDown) {
+                    console.log('Vertical up');
+                    client.up(speedMultiplier);
+                } else if (!verticalUp && verticalDown) {
+                    console.log('Vertical down');
                     client.down(speedMultiplier);
+                } else {
+                    console.log('Vertical stop');
+                    client.up(0);
                 }
             }
         };

@@ -5,8 +5,8 @@
     <title>CV.Drone</title>
     <meta name="viewport" content="width=device-width initial-scale=1.0">
 
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/bootstrap-toggle/css/bootstrap-toggle.css">
     <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/yeti/bootstrap.css">-->
 </head>
 <body>
@@ -20,16 +20,9 @@
     <div class="container-fluid" id="canvas">
         <div class="row" style="height: 5%"></div>
         <div class="row">
-            <!--<div class="col-md-12">-->
-                <!---->
-            <!--</div>-->
             <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12"></div>
             <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
-                <div align="center" class="embed-responsive embed-responsive-16by9">
-                    <video autoplay loop class="embed-responsive-item">
-                        <source src="http://techslides.com/demos/sample-videos/small.mp4" type="video/mp4">
-                    </video>
-                </div>
+                <div id="dronestream" align="center" class="embed-responsive embed-responsive-16by9"></div>
             </div>
             <div class="col-lg-4 col-md-2 col-sm-12 col-xs-12">
                 <div class="checkbox">
@@ -43,13 +36,10 @@
         <div class="row" style="height: 5%"></div>
     </div>
 
-    <script
-            src="https://code.jquery.com/jquery-3.1.1.js"
-            integrity="sha256-16cdPddA6VdVInumRGo6IbivbERE8p7CQR3HzTBuELA="
-            crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!--jQuery and Socket.io imports-->
+    <script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <!--Keyboard Events-->
     <script>
         $(document).ready(function() {
             var socket = io.connect();
@@ -194,8 +184,20 @@
             });
         });
     </script>
+    <!--Bootstrap imports-->
+    <script src="/bootstrap/js/bootstrap.js"></script>
+    <script src="/bootstrap-toggle/js/bootstrap-toggle.js"></script>
+    <!--Drone Stream imports-->
+    <script type="text/javascript" src="/drone-video/nodecopter-client.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/sylvester.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/glUtils.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/util.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/avc-codec.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/avc.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/canvas.js"></script>
+    <script type="text/javascript" src="/drone-video/nodecopter-stream.js"></script>
     <script>
-
+        var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
     </script>
 </body>
 </html>
