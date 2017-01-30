@@ -7,6 +7,7 @@
 
     <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
     <link rel="stylesheet" href="/bootstrap-toggle/css/bootstrap-toggle.css">
+    <link rel="stylesheet" href="/bootstrap-slider/css/bootstrap-slider.css">
     <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/yeti/bootstrap.css">-->
 </head>
 <body>
@@ -24,13 +25,16 @@
             <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
                 <div id="dronestream" align="center" class="embed-responsive embed-responsive-16by9"></div>
             </div>
-            <div class="col-lg-4 col-md-2 col-sm-12 col-xs-12">
+            <div id="controls" class="col-lg-4 col-md-2 col-sm-12 col-xs-12">
                 <div class="checkbox">
                     <label>
                         Debug Mode
                     </label>
                     <input type="checkbox" checked id="debugSwitch" data-toggle="toggle" data-on="Enabled" data-off="Disabled">
                 </div>
+
+                <input id="speedLimitSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="20"/>
+                <span id="speedLimitValueLabel">Speed Threshold: <span id="speedLimitValue">20</span>%</span>
             </div>
         </div>
         <div class="row" style="height: 5%"></div>
@@ -39,6 +43,22 @@
     <!--jQuery and Socket.io imports-->
     <script type="text/javascript" src="/jquery/jquery.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+
+    <!--Bootstrap imports-->
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.js"></script>
+    <script type="text/javascript" src="/bootstrap-toggle/js/bootstrap-toggle.js"></script>
+    <script type="text/javascript" src="/bootstrap-slider/bootstrap-slider.js"></script>
+
+    <!--Drone Stream imports-->
+    <script type="text/javascript" src="/drone-video/nodecopter-client.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/sylvester.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/glUtils.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/util.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/avc-codec.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/avc.js"></script>
+    <script type="text/javascript" src="/drone-video/vendor/broadway/canvas.js"></script>
+    <script type="text/javascript" src="/drone-video/nodecopter-stream.js"></script>
+
     <!--Keyboard Events-->
     <script>
         $(document).ready(function() {
@@ -48,17 +68,43 @@
 
             var shiftPressed = false;
 
-            // UI Controls
+            // =======================================
+            // ============= UI CONTROLS =============
+            // =======================================
+
+            // enable/disable controls
+            socket.on('disable-ground-controls', function () {
+                $('#debugSwitch').attr('disabled', true);
+                $('#speedLimitSlider').slider("disable");
+            });
+
+            socket.on('enable-ground-controls', function () {
+                $('#debugSwitch').removeAttr('disabled');
+                $('#speedLimitSlider').slider("enable");
+            });
+
+            // debug mode switch
             $('#debugSwitch').change(function() {
                 debugMode = !debugMode;
-                socket.emit('updateDebugMode', debugMode);
+                socket.emit('update-debug-mode', debugMode);
             });
+
+            // speed limit slider
+            $("#speedLimitSlider").slider();
+            $("#speedLimitSlider").on("slide", function(slideEvent) {
+                $("#speedLimitValue").text(slideEvent.value);
+                socket.emit('update-speed-limit', (0.01 * slideEvent.value));
+            });
+
+            // ========================================
+            // ============ DRONE CONTROLS ============
+            // ========================================
 
             // Key Events
             $(window).keydown(function(e) {
                 var event = e || window.event;
                 var key = event.which;
-                console.log(key);
+
                 switch(key) {
                     case 16: // shift
                         shiftPressed = true;
@@ -125,11 +171,8 @@
                 var event = e || window.event;
                 var key = event.which;
 
-                socket.emit('key-pressed' + key);
-
                 switch(key) {
                     case 16: // shift
-                        console.log('shift pressed');
                         shiftPressed = false;
                         break;
                     case 32: // space bar
@@ -173,29 +216,8 @@
                         break;
                 }
             });
-
-            // Server Events
-            socket.on('disableGroundControls', function () {
-                $('#debugSwitch').attr('disabled', true);
-            });
-
-            socket.on('enableGroundControls', function () {
-                $('#debugSwitch').removeAttr('disabled');
-            });
         });
     </script>
-    <!--Bootstrap imports-->
-    <script src="/bootstrap/js/bootstrap.js"></script>
-    <script src="/bootstrap-toggle/js/bootstrap-toggle.js"></script>
-    <!--Drone Stream imports-->
-    <script type="text/javascript" src="/drone-video/nodecopter-client.js"></script>
-    <script type="text/javascript" src="/drone-video/vendor/broadway/sylvester.js"></script>
-    <script type="text/javascript" src="/drone-video/vendor/broadway/glUtils.js"></script>
-    <script type="text/javascript" src="/drone-video/vendor/broadway/util.js"></script>
-    <script type="text/javascript" src="/drone-video/vendor/broadway/avc-codec.js"></script>
-    <script type="text/javascript" src="/drone-video/vendor/broadway/avc.js"></script>
-    <script type="text/javascript" src="/drone-video/vendor/broadway/canvas.js"></script>
-    <script type="text/javascript" src="/drone-video/nodecopter-stream.js"></script>
     <script>
         var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
     </script>

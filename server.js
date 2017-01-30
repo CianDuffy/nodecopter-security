@@ -24,6 +24,7 @@ app.use('/drone-video', express.static(__dirname + '/node_modules/dronestream/di
 // bower_components routes
 app.use('/jquery', express.static(__dirname + '/bower_components/jquery/dist/'));
 app.use('/bootstrap', express.static(__dirname + '/bower_components/bootstrap/dist/'));
+app.use('/bootstrap-slider', express.static(__dirname + '/bower_components/seiyria-bootstrap-slider/dist/'));
 app.use('/bootstrap-toggle', express.static(__dirname + '/bower_components/bootstrap-toggle/'));
 
 io.sockets.on('connection', function(socket) {
@@ -57,10 +58,17 @@ io.sockets.on('connection', function(socket) {
 	    debugMode = debug;
         console.log('CONNECTED');
 
-        socket.on('updateDebugMode', function (debug) {
+        socket.on('update-debug-mode', function (debug) {
             console.log('DEBUG: ' + debug);
             console.log('CONNECTED');
             debugMode = debug;
+        });
+
+        socket.on('update-speed-limit', function (speed) {
+            if (Math.abs(speedMultiplier - speed) > 0.04) {
+                console.log('Speed limit updated from ' + speedMultiplier + ' to ' + speed);
+                speedMultiplier = speed;
+            }
         });
 
 		// Socket.io methods
@@ -76,7 +84,7 @@ io.sockets.on('connection', function(socket) {
 		socket.on('takeoff-or-land', function() {
             if (!isFlying){
                 console.log('takeoff()');
-                socket.emit('disableGroundControls');
+                socket.emit('disable-ground-controls');
                 isFlying = true;
                 canFlip = false;
                 if (!debugMode) {
@@ -85,7 +93,7 @@ io.sockets.on('connection', function(socket) {
                 }
             } else {
                 console.log('land');
-                socket.emit('enableGroundControls');
+                socket.emit('enable-ground-controls');
                 isFlying = false;
                 canFlip = false;
                 if (!debugMode) {
