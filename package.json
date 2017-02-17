@@ -26,6 +26,7 @@
     "express": "^4.14.0",
     "nodecopter": "0.0.2",
     "opencv": "^6.0.0",
+    "opn": "^4.0.2",
     "socket.io": "^1.7.2"
   }
 }

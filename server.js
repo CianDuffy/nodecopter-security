@@ -18,14 +18,15 @@ app.get('/', function(req, res) {
 });
 
 // node_modules routes
-app.use('/socket-io', express.static(__dirname + '/node-modules/socket.io'));
 app.use('/drone-video', express.static(__dirname + '/node_modules/dronestream/dist/'));
 
 // bower_components routes
-app.use('/jquery', express.static(__dirname + '/bower_components/jquery/dist/'));
 app.use('/bootstrap', express.static(__dirname + '/bower_components/bootstrap/dist/'));
 app.use('/bootstrap-slider', express.static(__dirname + '/bower_components/seiyria-bootstrap-slider/dist/'));
 app.use('/bootstrap-toggle', express.static(__dirname + '/bower_components/bootstrap-toggle/'));
+app.use('/bootswatch', express.static(__dirname + '/bower_components/bootswatch/'));
+app.use('/jquery', express.static(__dirname + '/bower_components/jquery/dist/'));
+app.use('/socket.io', express.static(__dirname + '/bower_components/socket.io-client/dist/'));
 
 io.sockets.on('connection', function(socket) {
 
