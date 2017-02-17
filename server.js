@@ -18,7 +18,7 @@ app.get('/', function(req, res) {
 });
 
 // node_modules routes
-app.use('/socket-io', express.static(__dirname + '/node-modules/socket.io'))
+app.use('/socket-io', express.static(__dirname + '/node-modules/socket.io'));
 app.use('/drone-video', express.static(__dirname + '/node_modules/dronestream/dist/'));
 
 // bower_components routes

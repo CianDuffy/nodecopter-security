@@ -32,7 +32,7 @@ pngStream.on('data', function (pngBuffer) {
     cv.readImage(lastPNG, function (error, image) {
         if (error) throw error;
         if (image.width() < 1 || image.height() < 1) throw new Error('Image has no size');
-        image.detectObject("./data/haarcascade_fullbody.xml", {}, function(error, people){
+        image.detectObject("./node_modules/opencv/data/haarcascade_fullbody.xml", {}, function(error, people){
             if (error) throw error;
 
             for (var i = 0; i < people.length; i++){

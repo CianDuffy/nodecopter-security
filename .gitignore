@@ -39,3 +39,6 @@ jspm_packages
 
 # JetBrains 
 .idea/*
+
+# Debug Output
+pedestrian_results
