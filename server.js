@@ -3,7 +3,7 @@ var app = express();
 var server = require('http').createServer(app);
 server.listen(3000);
 var io = require('socket.io').listen(server);
-
+var favicon = require('serve-favicon');
 var arDrone = require('ar-drone');
 var client  = arDrone.createClient();
 var dronestream = require("dronestream").listen(server);
@@ -13,9 +13,20 @@ connections = [];
 // Program variables
 var speedMultiplier = 0.2;
 
+// html page routes
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
+app.get('/intruder_detected', function(req, res) {
+    res.sendFile(__dirname + '/intruder_detected.html');
+});
+
+// favicon
+app.use(favicon(__dirname + '/assets/images/ico/favicon.ico'));
+
+// routes for intruder_detected.html
+app.use('/security-image', express.static(__dirname + '/pedestrian_results/fullbody-detection14.png'));
+app.use('/images', express.static(__dirname + '/assets/images/'));
 
 // node_modules routes
 app.use('/drone-video', express.static(__dirname + '/node_modules/dronestream/dist/'));

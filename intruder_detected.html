@@ -3,10 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Intruder Detected</title>
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
 
-
+    <link rel="stylesheet" href="/bootswatch/flatly/bootstrap.css">
 </head>
 <body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">->
+            <a class="navbar-brand">
+                <span>
+                    <img alt="Drone Icon" src="/images/png/brand-icon-white-32.png">
+                </span>
+                CV.DRONE
+            </a>
+        </div>
+    </nav>
+    <div class="container-fluid" id="canvas">
+        <div class="row">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="jumbotron">
+                    <h1 id="intruder-label" class="text-center">Potential Intruder Detected</h1>
+                    <img src="/security-image" class="img-responsive center-block">
+                    <div class="btn-group btn-group-justified center-block" style="width: 640px">
+                        <a href="#resume-control-btn" class="btn btn-primary" style="width: 320px">Resume Patrol</a>
+                        <a href="#manual-control-btn" class="btn btn-primary" style="width: 320px">Assume Manual Control</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script type="text/javascript" src="/jquery/jquery.js"></script>
+    <script type="text/javascript" src="/bootstrap/js/bootstrap.js"></script>
 </body>
 </html>
