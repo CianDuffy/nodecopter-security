@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CV.Drone</title>
+    <meta name="viewport" content="width=device-width initial-scale=1.0">
+
+    <link rel="stylesheet" href="/bootswatch/flatly/bootstrap.css">
+    <link rel="stylesheet" href="/bootstrap-toggle/css/bootstrap-toggle.css">
+    <link rel="stylesheet" href="/bootstrap-slider/css/bootstrap-slider.css">
+</head>
+<body>
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <a class="navbar-brand">
+                <span>
+                    <img alt="Drone Icon" src="/images/png/brand-icon-white-32.png">
+                </span>
+            CV.DRONE
+        </a>
+    </div>
+</nav>
+<div class="container-fluid" id="canvas">
+    <div class="row" style="height: 5%"></div>
+    <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12"></div>
+        <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
+            <div id="dronestream" align="center" class="embed-responsive embed-responsive-16by9"></div>
+        </div>
+        <div id="controls" class="col-lg-4 col-md-2 col-sm-12 col-xs-12">
+            <div class="checkbox">
+                <label>
+                    Debug Mode
+                </label>
+                <input type="checkbox" checked id="debugSwitch" data-toggle="toggle" data-on="Enabled" data-off="Disabled">
+            </div>
+
+            <input id="speedLimitSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="20"/>
+            <span id="speedLimitValueLabel">Speed Threshold: <span id="speedLimitValue">20</span>%</span>
+        </div>
+    </div>
+    <div class="row" style="height: 5%"></div>
+</div>
+
+<!--jQuery and Socket.io imports-->
+<script type="text/javascript" src="/jquery/jquery.js"></script>
+<script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+<!--Bootstrap imports-->
+<script type="text/javascript" src="/bootstrap/js/bootstrap.js"></script>
+<script type="text/javascript" src="/bootstrap-toggle/js/bootstrap-toggle.js"></script>
+<script type="text/javascript" src="/bootstrap-slider/bootstrap-slider.js"></script>
+
+<!--Drone Stream imports-->
+<script type="text/javascript" src="/drone-video/nodecopter-client.js"></script>
+<script type="text/javascript" src="/drone-video/vendor/broadway/sylvester.js"></script>
+<script type="text/javascript" src="/drone-video/vendor/broadway/glUtils.js"></script>
+<script type="text/javascript" src="/drone-video/vendor/broadway/util.js"></script>
+<script type="text/javascript" src="/drone-video/vendor/broadway/avc-codec.js"></script>
+<script type="text/javascript" src="/drone-video/vendor/broadway/avc.js"></script>
+<script type="text/javascript" src="/drone-video/vendor/broadway/canvas.js"></script>
+<script type="text/javascript" src="/drone-video/nodecopter-stream.js"></script>
+
+<!--Keyboard Events-->
+<script>
+    $(document).ready(function() {
+        var socket = io.connect();
+        var debugMode = true;
+        socket.emit('connect-to-drone', debugMode);
+
+        var shiftPressed = false;
+
+        // =======================================
+        // ============= UI CONTROLS =============
+        // =======================================
+
+        // enable/disable controls
+        socket.on('disable-ground-controls', function () {
+            $('#debugSwitch').attr('disabled', true);
+            $('#speedLimitSlider').slider("disable");
+        });
+
+        socket.on('enable-ground-controls', function () {
+            $('#debugSwitch').removeAttr('disabled');
+            $('#speedLimitSlider').slider("enable");
+        });
+
+        // debug mode switch
+        $('#debugSwitch').change(function() {
+            debugMode = !debugMode;
+            socket.emit('update-debug-mode', debugMode);
+        });
+
+        // speed limit slider
+        $("#speedLimitSlider").slider();
+        $("#speedLimitSlider").on("slide", function(slideEvent) {
+            $("#speedLimitValue").text(slideEvent.value);
+            socket.emit('update-speed-limit', (0.01 * slideEvent.value));
+        });
+
+        // ========================================
+        // ============ DRONE CONTROLS ============
+        // ========================================
+
+        // Key Events
+        $(window).keydown(function(e) {
+            var event = e || window.event;
+            var key = event.which;
+
+            switch(key) {
+                case 16: // shift
+                    shiftPressed = true;
+                    break;
+                case 37: // left arrow
+                    e.preventDefault();
+                    if (shiftPressed) {
+                        socket.emit('flip', 'left');
+                    } else {
+                        socket.emit('yaw', 'counterClockwise', true);
+                    }
+                    break;
+                case 38: // up arrow
+                    e.preventDefault();
+                    if (shiftPressed) {
+                        socket.emit('flip','forward');
+                    } else {
+                        socket.emit('vertical', 'up', true);
+                    }
+                    break;
+                case 39: // right arrow
+                    e.preventDefault();
+                    if (shiftPressed) {
+                        socket.emit('flip', 'right');
+                    } else {
+                        socket.emit('yaw', 'clockwise', true);
+                    }
+                    break;
+                case 40: // down arrow
+                    e.preventDefault();
+                    if (shiftPressed) {
+                        socket.emit('flip', 'backward');
+                    } else {
+                        socket.emit('vertical', 'down', true);
+                    }
+                    break;
+                case 65: // a
+                    e.preventDefault();
+                    socket.emit('roll', 'left', true);
+                    break;
+                case 68: // d
+                    e.preventDefault();
+                    socket.emit('roll', 'right', true);
+                    break;
+                case 72: // h
+                    e.preventDefault();
+                    socket.emit('hover');
+                    break;
+                case 83: // s
+                    e.preventDefault();
+                    socket.emit('pitch', 'back', true);
+                    break;
+                case 87: // w
+                    e.preventDefault();
+                    socket.emit('pitch', 'forward', true);
+                    break;
+                case 91: // cmd
+                    shiftPressed = true;
+                    break;
+            }
+        });
+
+        $(window).keyup(function(e) {
+            var event = e || window.event;
+            var key = event.which;
+
+            switch(key) {
+                case 16: // shift
+                    shiftPressed = false;
+                    break;
+                case 32: // space bar
+                    e.preventDefault();
+                    socket.emit('takeoff-or-land');
+                    break;
+                case 37: // left arrow
+                    e.preventDefault();
+                    socket.emit('yaw', 'counterClockwise', false);
+                    break;
+                case 38: // up arrow
+                    e.preventDefault();
+                    socket.emit('vertical', 'up', false);
+                    break;
+                case 39: // right arrow
+                    e.preventDefault();
+                    socket.emit('yaw', 'clockwise', false);
+                    break;
+                case 40: // down arrow
+                    e.preventDefault();
+                    socket.emit('vertical','down', false);
+                    break;
+                case 65: // a
+                    e.preventDefault();
+                    socket.emit('roll', 'left', false);
+                    break;
+                case 68: // d
+                    e.preventDefault();
+                    socket.emit('roll', 'right', false);
+                    break;
+                case 83: // s
+                    e.preventDefault();
+                    socket.emit('pitch', 'back', false);
+                    break;
+                case 87: // w
+                    e.preventDefault();
+                    socket.emit('pitch', 'forward', false);
+                    break;
+                case 91: // cmd
+                    shiftPressed = false;
+                    break;
+            }
+        });
+    });
+</script>
+<script>
+    var copterStream = new NodecopterStream(document.querySelector('#dronestream'));
+</script>
+</body>
+</html>
