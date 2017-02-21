@@ -1,0 +1,22 @@
+html,body {
+    height: 100%;
+}
+
+.jumbotron {
+    height: 100%;
+}
+
+#controlDiv {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.inline-drone-control {
+    display: inline-block;
+    align-self: stretch;
+    vertical-align: top;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 280px;
+}
