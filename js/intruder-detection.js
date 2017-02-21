@@ -1,3 +1,9 @@
+var express = require('express');
+var app = express();
+var server = require('http').createServer(app);
+server.listen(3001);
+var io = require('socket.io').listen(server);
+
 var opn = require('opn');
 var arDrone = require('ar-drone');
 var client  = arDrone.createClient();
@@ -25,16 +31,20 @@ pngStream.on('data', function (pngBuffer) {
                 image.rectangle([person.x, person.y], [person.width, person.height], COLOUR_GREEN, thickness);
             }
 
-            if (people.length > 0) {
+            if (people.length > 0 && !browserOpened) {
                 image.save('./images/jpg/pedestrian_results/fullbody-detection' + count + '.png');
                 console.log('Image saved to ./images/jpg/pedestrian_results/fullbody-detection' + count + '.png');
                 count ++;
-                if (!browserOpened) {
-                    opn('http://localhost:3000/intruder_detected');
-                    browserOpened = true;
-                }
+                opn('http://localhost:3000/intruder_detected');
+                browserOpened = true;
             }
         });
     });
 });
 
+io.sockets.on('connection', function (socket) {
+    socket.on('false-alarm', function () {
+        console.log('intruder-detection.js: false alarm');
+        browserOpened = false;
+    });
+});
