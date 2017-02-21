@@ -1,0 +1,15 @@
+#jumbo {
+    padding-top: 5px;
+}
+
+#security-image {
+    width: 640px;
+}
+
+#response-button-group {
+    width: 640px;
+}
+
+#resume-patrol-btn, #manual-control-btn {
+    width: 320px;
+}

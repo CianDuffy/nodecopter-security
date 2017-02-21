@@ -5,44 +5,47 @@
     <title>CV.Drone</title>
     <meta name="viewport" content="width=device-width initial-scale=1.0">
 
-    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="/bootswatch/flatly/bootstrap.css">
     <link rel="stylesheet" href="/bootstrap-toggle/css/bootstrap-toggle.css">
     <link rel="stylesheet" href="/bootstrap-slider/css/bootstrap-slider.css">
-    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootswatch/3.3.6/yeti/bootstrap.css">-->
+    <link rel="stylesheet" href="/css/drone_control.css">
 </head>
 <body>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <a class="navbar-brand">
+                <span>
+                    <img alt="Drone Icon" src="/images/png/brand-icon-white-32.png">
+                </span>
                 CV.DRONE
             </a>
         </div>
     </nav>
     <div class="container-fluid" id="canvas">
-        <div class="row" style="height: 5%"></div>
         <div class="row">
-            <div class="col-lg-2 col-md-2 col-sm-12 col-xs-12"></div>
-            <div class="col-lg-6 col-md-8 col-sm-12 col-xs-12">
-                <div id="dronestream" align="center" class="embed-responsive embed-responsive-16by9"></div>
-            </div>
-            <div id="controls" class="col-lg-4 col-md-2 col-sm-12 col-xs-12">
-                <div class="checkbox">
-                    <label>
-                        Debug Mode
-                    </label>
-                    <input type="checkbox" checked id="debugSwitch" data-toggle="toggle" data-on="Enabled" data-off="Disabled">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="jumbotron">
+                    <div id="dronestream" align="center"></div>
+                    <div id="controlDiv" align="center">
+                        <div id="flightEnableSwitchDiv" class="inline-drone-control">
+                            <h3>
+                                Flight Mode
+                            </h3>
+                            <input type="checkbox" id="flightEnableSwitch" data-toggle="toggle" data-on="Enabled" data-off="Disabled">
+                        </div>
+                        <div id="speedLimitSliderDiv" class="inline-drone-control">
+                            <h3 id="speedLimitLabel">Speed Limit: 20%</h3>
+                            <input id="speedLimitSlider" type="text" data-slider-min="5" data-slider-max="100" data-slider-step="5" data-slider-value="20"/>
+                        </div>
+                    </div>
                 </div>
-
-                <input id="speedLimitSlider" type="text" data-slider-min="0" data-slider-max="100" data-slider-step="5" data-slider-value="20"/>
-                <span id="speedLimitValueLabel">Speed Threshold: <span id="speedLimitValue">20</span>%</span>
             </div>
         </div>
-        <div class="row" style="height: 5%"></div>
     </div>
 
     <!--jQuery and Socket.io imports-->
     <script type="text/javascript" src="/jquery/jquery.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.2/socket.io.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
     <!--Bootstrap imports-->
     <script type="text/javascript" src="/bootstrap/js/bootstrap.js"></script>
@@ -63,8 +66,9 @@
     <script>
         $(document).ready(function() {
             var socket = io.connect();
-            var debugMode = true;
-            socket.emit('connect-to-drone', debugMode);
+
+            var flightEnabled = false;
+            socket.emit('connect-to-drone', flightEnabled);
 
             var shiftPressed = false;
 
@@ -74,25 +78,25 @@
 
             // enable/disable controls
             socket.on('disable-ground-controls', function () {
-                $('#debugSwitch').attr('disabled', true);
+                $('#flightEnableSwitch').attr('disabled', true);
                 $('#speedLimitSlider').slider("disable");
             });
 
             socket.on('enable-ground-controls', function () {
-                $('#debugSwitch').removeAttr('disabled');
+                $('#flightEnableSwitch').removeAttr('disabled');
                 $('#speedLimitSlider').slider("enable");
             });
 
             // debug mode switch
-            $('#debugSwitch').change(function() {
-                debugMode = !debugMode;
-                socket.emit('update-debug-mode', debugMode);
+            $('#flightEnableSwitch').change(function() {
+                flightEnabled = !flightEnabled;
+                socket.emit('update-flight-enabled', flightEnabled);
             });
 
             // speed limit slider
             $("#speedLimitSlider").slider();
             $("#speedLimitSlider").on("slide", function(slideEvent) {
-                $("#speedLimitValue").text(slideEvent.value);
+                $("#speedLimitLabel").text("Speed Limit: " + slideEvent.value + "%");
                 socket.emit('update-speed-limit', (0.01 * slideEvent.value));
             });
 
@@ -135,11 +139,11 @@
                         break;
                     case 40: // down arrow
                         e.preventDefault();
-                    if (shiftPressed) {
-                        socket.emit('flip', 'backward');
-                    } else {
-                        socket.emit('vertical', 'down', true);
-                    }
+                        if (shiftPressed) {
+                            socket.emit('flip', 'backward');
+                        } else {
+                            socket.emit('vertical', 'down', true);
+                        }
                         break;
                     case 65: // a
                         e.preventDefault();

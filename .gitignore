@@ -39,3 +39,7 @@ jspm_packages
 
 # JetBrains 
 .idea/*
+
+# Debug
+images/jpg/pedestrian_results/*
+debug.js
