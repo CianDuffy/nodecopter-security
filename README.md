@@ -43,7 +43,7 @@ adjust accordingly
    You can use a different edition, just make sure OpenCV supports it, and you
    set the "vcxx" part of the variables above to match*
    
-   ***I haven't tested these steps personally, this is a repost of the installation guide for the [node-opencv] module.**
+   *I haven't tested these steps personally, this is a repost of the installation guide for the [node-opencv] module.
 
 4. Download CianDuffy/nodecopter-security `$ git clone https://github.com/CianDuffy/nodecopter-security.git`
 
