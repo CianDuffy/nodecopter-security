@@ -58,7 +58,7 @@ exports.droneController = function (server) {
             // Socket.io methods
             socket.on('hover', function() {
                 console.log('Hover');
-                if (!flightEnabled) {
+                if (flightEnabled) {
                     if (isFlying) {
                         client.stop();
                     }
@@ -71,7 +71,7 @@ exports.droneController = function (server) {
                     socket.emit('disable-ground-controls');
                     isFlying = true;
                     canFlip = false;
-                    if (!flightEnabled) {
+                    if (flightEnabled) {
                         client.takeoff();
                         client.stop();
                     }
@@ -80,7 +80,7 @@ exports.droneController = function (server) {
                     socket.emit('enable-ground-controls');
                     isFlying = false;
                     canFlip = false;
-                    if (!flightEnabled) {
+                    if (flightEnabled) {
                         client.stop();
                         client.land();
                     }
@@ -206,7 +206,7 @@ exports.droneController = function (server) {
                             console.log('flip left');
                             canFlip = false;
                             setTimeout(resetCanFlip, 8000);
-                            if (!flightEnabled) {
+                            if (flightEnabled) {
                                 client.stop();
                                 client.animate('flipLeft', 1000);
                             }
@@ -215,7 +215,7 @@ exports.droneController = function (server) {
                             console.log('flip right');
                             canFlip = false;
                             setTimeout(resetCanFlip, 8000);
-                            if (!flightEnabled) {
+                            if (flightEnabled) {
                                 client.stop();
                                 client.animate('flipRight', 1000);
                             }
@@ -224,7 +224,7 @@ exports.droneController = function (server) {
                             console.log('flip forward');
                             canFlip = false;
                             setTimeout(resetCanFlip, 8000);
-                            if (!flightEnabled) {
+                            if (flightEnabled) {
                                 client.stop();
                                 client.animate('flipAhead', 1000);
                             }
@@ -233,7 +233,7 @@ exports.droneController = function (server) {
                             console.log('flip backward');
                             canFlip = false;
                             setTimeout(resetCanFlip, 8000);
-                            if (!flightEnabled) {
+                            if (flightEnabled) {
                                 client.stop();
                                 client.animate('flipBehind', 1000);
                             }
@@ -246,7 +246,7 @@ exports.droneController = function (server) {
 
             // AR.Drone Control Methods
             var updateRollSpeed = function () {
-                if (!flightEnabled) {
+                if (flightEnabled) {
                     if (rollRight && !rollLeft) {
                         console.log('Roll right');
                         client.right(speedMultiplier);
@@ -261,7 +261,7 @@ exports.droneController = function (server) {
             };
 
             var updateYawSpeed = function () {
-                if (!flightEnabled) {
+                if (flightEnabled) {
                     if (yawClockwise && !yawCounterClockwise) {
                         console.log('Yaw clockwise');
                         client.clockwise(speedMultiplier);
@@ -276,7 +276,7 @@ exports.droneController = function (server) {
             };
 
             var updatePitchSpeed = function () {
-                if (!flightEnabled) {
+                if (flightEnabled) {
                     if (pitchForward && !pitchBackward) {
                         console.log('Pitch forward');
                         client.front(speedMultiplier);
@@ -291,7 +291,7 @@ exports.droneController = function (server) {
             };
 
             var updateVerticalSpeed = function () {
-                if (!flightEnabled) {
+                if (flightEnabled) {
                     if (verticalUp && !verticalDown) {
                         console.log('Vertical up');
                         client.up(speedMultiplier);
