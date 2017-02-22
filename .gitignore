@@ -41,5 +41,4 @@ jspm_packages
 .idea/*
 
 # Debug
-images/jpg/pedestrian_results/*
-debug.js
+images/png/intruder-detected.png
