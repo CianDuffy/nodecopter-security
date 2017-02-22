@@ -13,7 +13,6 @@ var cv = require('opencv');
 
 var lastPNG;
 var browserOpened = false;
-var count = 0;
 var thickness = 2;
 var COLOUR_GREEN = [0, 255, 0];
 
@@ -32,9 +31,8 @@ pngStream.on('data', function (pngBuffer) {
             }
 
             if (people.length > 0 && !browserOpened) {
-                image.save('./images/jpg/pedestrian_results/fullbody-detection' + count + '.png');
-                console.log('Image saved to ./images/jpg/pedestrian_results/fullbody-detection' + count + '.png');
-                count ++;
+                image.save('./images/png/intruder-detected.png');
+                console.log('Image saved to ./images/png/intruder-detected.png');
                 opn('http://localhost:3000/intruder_detected');
                 browserOpened = true;
             }

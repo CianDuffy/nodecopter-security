@@ -27,7 +27,7 @@ app.use(favicon(__dirname + '/images/ico/favicon.ico'));
 app.use('/css', express.static(__dirname + '/css/'));
 
 // routes for intruder_detected.html
-app.use('/security-image', express.static(__dirname + '/images/jpg/fullbody-detection-example.png'));
+app.use('/security-image', express.static(__dirname + '/images/png/intruder-detected.png'));
 app.use('/images', express.static(__dirname + '/images/'));
 
 // node_modules routes
