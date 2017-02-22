@@ -133,5 +133,5 @@ SOFTWARE.
 [node-opencv]: https://github.com/peterbraden/node-opencv
 [node-dronestream]: https://github.com/bkw/node-dronestream
 [Socket.io]: http://socket.io
-[intruder-detected-screenshot]: https://github.com/CianDuffy/nodecopter-security/blob/master/README_Stuff/images/intruder-detected-example.png
+[intruder-detected-screenshot]: https://github.com/CianDuffy/nodecopter-security/blob/master/README_Stuff/images/intruder-detection-example.png
 [manual-mode-screenshot]: https://github.com/CianDuffy/nodecopter-security/blob/master/README_Stuff/images/manual-control-example.png
