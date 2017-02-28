@@ -1,8 +1,8 @@
 # nodecopter-security
 
-A security system program that uses the [Parrot AR.Drone 2.0] as a mobile security 
-camera capable of detecting intruders as well as controlling the drone manually with 
-the user's keyboard.  
+A security system program that uses the [Parrot AR.Drone 2.0] as a mobile security
+camera capable of detecting intruders and allows the user to control the drone 
+manually with their keyboard.  
 
 The application is written in [Node.js] and is being developed as the final year 
 project for my undergraduate degree in Electronic and Computer Engineering at the 
