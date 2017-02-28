@@ -90,6 +90,9 @@ Web page used to control the drone manually
 
 ##Future Enhancements
 This project is not yet complete. The following are features that I hope to include in the final project.
+###Improved Intruder detection
+At the moment, the false positive rate of the intruder detection mode is very high. I plan to use photos from the AR.Drone's camera to train an OpenCV HAAR Classifier to improve the accuracy. 
+
 ###Autonomous Patrol Mode
 During the detection mode, the drone should be able to execute a predefined patrol route while simultaneously trying to detect intruders. 
 
