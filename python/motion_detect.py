@@ -1,57 +1,54 @@
-import os, cv2
+import os
+import cv2
 
-droneOutputString = "./images/intruder-detection/drone-output/drone-output.png"
-backgroundImageString = "./images/intruder-detection/background.png"
-detectedImageString = "./images/intruder-detection/detected/intruder-detected.png"
+drone_output_path_string = "./images/intruder-detection/drone-output/drone-output.png"
+background_image_path_string = "./images/intruder-detection/background.png"
+detected_image_path_string = "./images/intruder-detection/detected/intruder-detected.png"
 
-minArea = 500
-backgroundSubtractor = cv2.BackgroundSubtractorMOG()
+minimum_area = 500
+background_subtractor = cv2.BackgroundSubtractorMOG()
 
 
 def clear_directories():
-    if os.path.exists(droneOutputString):
-        os.remove(droneOutputString)
-    if os.path.exists(backgroundImageString):
-        os.remove(backgroundImageString)
-    if os.path.exists(detectedImageString):
-        os.remove(detectedImageString)
+    if os.path.exists(drone_output_path_string):
+        os.remove(drone_output_path_string)
+    if os.path.exists(background_image_path_string):
+        os.remove(background_image_path_string)
+    if os.path.exists(detected_image_path_string):
+        os.remove(detected_image_path_string)
 
 
 def train_background_subtractor():
-    print 'training subtractor'
     for i in range(1, 16):
-        bgImageFile = backgroundImageString.format(i)
-        bg = cv2.imread(bgImageFile)
-        backgroundSubtractor.apply(bg, learningRate=0.5)
+        background_image_file = background_image_path_string.format(i)
+        background = cv2.imread(background_image_file)
+        background_subtractor.apply(background, learningRate=0.5)
 
 
 def detect_intruders():
-    print 'detecting intruders'
-    stillFrame = cv2.imread(droneOutputString)
-    fgmask = backgroundSubtractor.apply(stillFrame, learningRate=0)
+    drone_output_image = cv2.imread(drone_output_path_string)
+    foreground_mask = background_subtractor.apply(drone_output_image, learningRate=0)
     
-    (cnts, _) = cv2.findContours(fgmask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    (contours, _) = cv2.findContours(foreground_mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     
-    largeContours = []
+    large_contours = []
     
-    for c in cnts:
-        if cv2.contourArea(c) > minArea:
-            largeContours.append(c)
-            (x, y, w, h) = cv2.boundingRect(c)
-            cv2.rectangle(stillFrame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    for contour in contours:
+        if cv2.contourArea(contour) > minimum_area:
+            large_contours.append(contour)
+            (x, y, w, h) = cv2.boundingRect(contour)
+            cv2.rectangle(drone_output_image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    if len(largeContours) > 0:
-        cv2.imwrite(detectedImageString, stillFrame)
-    
-    print 'deleting file'
-    os.remove(droneOutputString)
+    if len(large_contours) > 0:
+        cv2.imwrite(detected_image_path_string, drone_output_image)
+
+    os.remove(drone_output_path_string)
 
 
 def main():
     clear_directories()
     while True:
-        if os.path.exists(droneOutputString):
-            print 'file exists'
+        if os.path.exists(drone_output_path_string):
             train_background_subtractor()
             detect_intruders()
 
