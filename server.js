@@ -5,12 +5,14 @@ server.listen(3000);
 var favicon = require('serve-favicon');
 var cp = require('child_process');
 
+var python = cp.spawn('python', ['./python/motion_detect.py'])
 var intruderDetector = cp.fork('./js/intruder-detection');
 var droneController;
 
 // html page routes
 app.get('/drone_control', function(req, res) {
     console.log('Killing detector');
+    python.kill('SIGINT');
     intruderDetector.kill('SIGINT');
     var control = require('./js/manual-control')
     droneController = control.droneController(server);

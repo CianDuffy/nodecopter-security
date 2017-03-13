@@ -1,8 +1,8 @@
 import os, cv2
 
-droneOutputString = "../images/intruder-detection/drone-output/intruder-detected.png"
-backgroundImageString = "../images/intruder-detection/background.png"
-detectedImageString = "../images/intruder-detection/detected/intruder-detected.png"
+droneOutputString = "./images/intruder-detection/drone-output/drone-output.png"
+backgroundImageString = "./images/intruder-detection/background.png"
+detectedImageString = "./images/intruder-detection/detected/intruder-detected.png"
 
 minArea = 500
 backgroundSubtractor = cv2.BackgroundSubtractorMOG()
@@ -41,7 +41,7 @@ def detect_intruders():
             cv2.rectangle(stillFrame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     if len(largeContours) > 0:
-        cv2.imwrite('../images/intruder-detection/detected/intruder-detected.png', stillFrame)
+        cv2.imwrite(detectedImageString, stillFrame)
     
     print 'deleting file'
     os.remove(droneOutputString)

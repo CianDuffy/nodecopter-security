@@ -4,19 +4,27 @@ var server = require('http').createServer(app);
 server.listen(3001);
 var io = require('socket.io').listen(server);
 
+const fs = require('fs');
+
 var opn = require('opn');
 
 var arDrone = require('ar-drone');
 var client  = arDrone.createClient();
 var pngStream = client.getPngStream();
 
+var backgroundImagePath = './images/intruder-detection/background.png';
+var droneOutputDirectoryPath = './images/intruder-detection/drone-output/';
+var droneOutputImagePath = './images/intruder-detection/drone-output/drone-output.png';
+var detectedDirectoryPath = './images/intruder-detection/detected/';
+var detectedImagePath = './images/intruder-detection/detected/intruder-detected.png';
+
 var cv = require('opencv');
 
 var chokidar = require('chokidar');
-var detectedWatcher = chokidar.watch('./images/intruder-detection/detected/', {
+var detectedWatcher = chokidar.watch(detectedDirectoryPath, {
     ignored: /[\/\\]\./, persistent: true
 });
-var droneOutputWatcher = chokidar.watch('./images/intruder-detection/drone-output/', {
+var droneOutputWatcher = chokidar.watch(droneOutputDirectoryPath, {
     ignored: /[\/\\]\./, persistent: true
 });
 
@@ -34,11 +42,11 @@ pngStream.on('data', function (pngBuffer) {
         if (firstLoop) {
             firstLoop = false;
             console.log('background');
-            image.save('./images/intruder-detection/background.png');
+            image.save(backgroundImagePath);
         } else if (!browserOpened && !detecting) {
             detecting = true;
             console.log('drone-output');
-            image.save('./images/intruder-detection/drone-output/intruder-detected.png');
+            image.save(droneOutputImagePath);
         }
     });
 });
@@ -58,6 +66,7 @@ droneOutputWatcher.on('unlink', function(path) {
 io.sockets.on('connection', function (socket) {
     socket.on('false-alarm', function () {
         browserOpened = false;
+        fs.unlink(detectedImagePath);
         console.log('intruder-detection.js: false alarm');
     });
 });
