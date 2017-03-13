@@ -40,5 +40,7 @@ jspm_packages
 # JetBrains 
 .idea/*
 
-# Debug
-images/png/intruder-detected.png
+# Intruder Detection Images
+images/intruder-detection/background.png
+images/intruder-detection/detected/*
+images/intruder-detection/drone-output/*
