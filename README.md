@@ -8,11 +8,11 @@ The application is written in [Node.js] and is being developed as the final year
 project for my undergraduate degree in Electronic and Computer Engineering at the 
 National University of Ireland, Galway.
 
-##Installation
+## Installation
 You'll need OpenCV 2.3.1 or newer installed before installing this application. 
 OpenCV 3.x is not supported.
 
-###On macOS
+### On macOS
 1. Install [Homebrew]
 
 2. Run `$ brew install opencv`
@@ -25,7 +25,7 @@ OpenCV 3.x is not supported.
 
 6. Start the application by running `node server.js' in the project's root directory 
 
-###On Windows
+### On Windows
 1. Download and install OpenCV (Be sure to use a 2.4 version) @
 http://opencv.org/downloads.html
 For these instructions we will assume OpenCV is put at C:\OpenCV, but you can
@@ -52,7 +52,7 @@ adjust accordingly
 6. Start the application by running `node server.js` in the project's root directory 
 
 
-##Intruder Detection Mode
+## Intruder Detection Mode
 
 The system is built primarily on the [node-ar-drone] library and uses the [node-opencv] library to identify intruders from the AR.Drone's camera feed. 
 
@@ -62,11 +62,11 @@ When an intruder is detected, the system opens a web page prompting the security
 
 Intruder alert page
 
-##Manual Control Mode
+## Manual Control Mode
 
 When an intruder is detected, the security guard can take manual control of the AR.Drone to investigate. The drone is controlled using the user's keyboard. Controls are sent to the drone using [Socket.io]. The table below shows the controls and their corresponding keys.  
 
-###Controls
+### Controls
 
  Action | Key 
  --- | --- 
@@ -88,25 +88,26 @@ The video footage is streamed to the web page using the [node-dronestream] modul
 
 Web page used to control the drone manually
 
-##Future Enhancements
+## Future Enhancements
 This project is not yet complete. The following are features that I hope to include in the final project.
-###Improved Intruder detection
+
+### Improved Intruder detection
 At the moment, the false positive rate of the intruder detection mode is very high. I plan to use photos from the AR.Drone's camera to train an OpenCV HAAR Classifier to improve the accuracy. 
 
-###Autonomous Patrol Mode
+### Autonomous Patrol Mode
 During the detection mode, the drone should be able to execute a predefined patrol route while simultaneously trying to detect intruders. 
 
-###Patrol Zone Definition Interface
+### Patrol Zone Definition Interface
 It should be possible to define the area through which the AR.Drone will patrol through a web page interface. It should also be possible to update the patrol area while the system is active. 
  
-###More Sophisticated Patrol Routes
+### More Sophisticated Patrol Routes
 Rather than simply patrolling the perimeter of the room, the system should be capable of guiding the drone through more sophisticated patrol routes. It should be possible to select your preferred patrol route from the same interface as that used to define the patrol area.  
 
-###Remote Connection
+### Remote Connection
 At the moment, it is necessary to connect to the AR.Drone's wifi beacon. In future, I hope to be able to connect to the drone via an intermediate WiFi network, increasing the range of the system.
 
 
-##License
+## License
 MIT License
 
 Copyright (c) 2016 Cian Duffy
