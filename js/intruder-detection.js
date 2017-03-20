@@ -41,11 +41,9 @@ pngStream.on('data', function (pngBuffer) {
         if (image.width() < 1 || image.height() < 1) throw new Error('Image has no size');
         if (firstLoop) {
             firstLoop = false;
-            console.log('background');
             image.save(backgroundImagePath);
         } else if (!browserOpened && !detecting) {
             detecting = true;
-            console.log('drone-output');
             image.save(droneOutputImagePath);
         }
     });
@@ -53,13 +51,10 @@ pngStream.on('data', function (pngBuffer) {
 
 detectedWatcher.on('add', function(path) {
     browserOpened = true;
-    console.log('File ', path, ' has been added');
     setTimeout(openBrowser, 500);
 });
 
 droneOutputWatcher.on('unlink', function(path) {
-    console.log('File ', path, ' has been deleted');
-    console.log('YURT');
     detecting = false;
 });
 
@@ -67,7 +62,6 @@ io.sockets.on('connection', function (socket) {
     socket.on('false-alarm', function () {
         browserOpened = false;
         fs.unlink(detectedImagePath);
-        console.log('intruder-detection.js: false alarm');
     });
 });
 

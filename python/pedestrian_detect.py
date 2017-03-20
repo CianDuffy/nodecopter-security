@@ -6,6 +6,7 @@ drone_output_path_string = "./images/intruder-detection/drone-output/drone-outpu
 detected_image_path_string = "./images/intruder-detection/detected/intruder-detected.png"
 full_body_haar_cascade_path_string = "./node_modules/opencv/data/haarcascade_fullbody.xml"
 
+
 def clear_directories():
     if os.path.exists(drone_output_path_string):
         os.remove(drone_output_path_string)
@@ -16,7 +17,7 @@ def clear_directories():
 def detect_intruders():
     time.sleep(0.5)
     drone_output_image = cv2.imread(drone_output_path_string)
-    intruder_classifier = cv2.CascadeClassifier(full_body_haar_cascade_path_string);
+    intruder_classifier = cv2.CascadeClassifier(full_body_haar_cascade_path_string)
     intruders = intruder_classifier.detectMultiScale(drone_output_image)
     
     if len(intruders) > 0:
