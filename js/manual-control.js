@@ -19,7 +19,7 @@ exports.droneController = function (server) {
 
         // State Variables
         var isFlying = false;
-        var canFlip = false;
+        var canFlip = true;
         var flightEnabled = true;
 
         // Control variables
@@ -70,7 +70,6 @@ exports.droneController = function (server) {
                     console.log('takeoff()');
                     socket.emit('disable-ground-controls');
                     isFlying = true;
-                    canFlip = false;
                     if (flightEnabled) {
                         client.takeoff();
                         client.stop();
@@ -79,7 +78,6 @@ exports.droneController = function (server) {
                     console.log('land');
                     socket.emit('enable-ground-controls');
                     isFlying = false;
-                    canFlip = false;
                     if (flightEnabled) {
                         client.stop();
                         client.land();
@@ -208,7 +206,7 @@ exports.droneController = function (server) {
                             setTimeout(resetCanFlip, 8000);
                             if (flightEnabled) {
                                 client.stop();
-                                client.animate('flipLeft', 1000);
+                                client.animate('flipLeft', 500);
                             }
                             break;
                         case 'right':
@@ -217,7 +215,7 @@ exports.droneController = function (server) {
                             setTimeout(resetCanFlip, 8000);
                             if (flightEnabled) {
                                 client.stop();
-                                client.animate('flipRight', 1000);
+                                client.animate('flipRight', 500);
                             }
                             break;
                         case 'forward':
@@ -226,7 +224,7 @@ exports.droneController = function (server) {
                             setTimeout(resetCanFlip, 8000);
                             if (flightEnabled) {
                                 client.stop();
-                                client.animate('flipAhead', 1000);
+                                client.animate('flipAhead', 500);
                             }
                             break;
                         case 'backward':
@@ -235,7 +233,7 @@ exports.droneController = function (server) {
                             setTimeout(resetCanFlip, 8000);
                             if (flightEnabled) {
                                 client.stop();
-                                client.animate('flipBehind', 1000);
+                                client.animate('flipBehind', 500);
                             }
                             break;
                         default:
@@ -243,6 +241,14 @@ exports.droneController = function (server) {
                     }
                 }
             });
+
+            var resetCanFlip = function () {
+                if (isFlying) {
+                    canFlip = true;
+                    console.log('canFlip reset');
+                }
+            };
+
 
             // AR.Drone Control Methods
             var updateRollSpeed = function () {
@@ -306,13 +312,5 @@ exports.droneController = function (server) {
             };
         });
     });
-
-    var resetCanFlip = function () {
-        if (isFlying) {
-            canFlip = true;
-            console.log('canFlip reset');
-        }
-    };
-
     return temp;
 };
