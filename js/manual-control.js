@@ -3,7 +3,6 @@ exports.droneController = function (server) {
     var temp = {};
 
     var io = require('socket.io').listen(server);
-    var favicon = require('serve-favicon');
     var arDrone = require('ar-drone');
     var client  = arDrone.createClient();
     var dronestream = require("dronestream").listen(server);
@@ -248,7 +247,6 @@ exports.droneController = function (server) {
                     console.log('canFlip reset');
                 }
             };
-
 
             // AR.Drone Control Methods
             var updateRollSpeed = function () {
