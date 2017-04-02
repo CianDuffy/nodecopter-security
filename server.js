@@ -5,14 +5,16 @@ server.listen(3000);
 var favicon = require('serve-favicon');
 var cp = require('child_process');
 
+var python = cp.spawn('python', ['./python/intruder_detection.py']);
 var intruderDetector = cp.fork('./js/intruder-detection');
 var droneController;
 
 // html page routes
 app.get('/drone_control', function(req, res) {
     console.log('Killing detector');
+    python.kill('SIGINT');
     intruderDetector.kill('SIGINT');
-    var control = require('./js/manual-control')
+    var control = require('./js/manual-control');
     droneController = control.droneController(server);
     res.sendFile(__dirname + '/html/drone_control.html');
 });
@@ -27,7 +29,7 @@ app.use(favicon(__dirname + '/images/ico/favicon.ico'));
 app.use('/css', express.static(__dirname + '/css/'));
 
 // routes for intruder_detected.html
-app.use('/security-image', express.static(__dirname + '/images/png/intruder-detected.png'));
+app.use('/security-image', express.static(__dirname + '/images/intruder-detection/detected/intruder-detected.png'));
 app.use('/images', express.static(__dirname + '/images/'));
 
 // node_modules routes
